@@ -30,12 +30,13 @@ class TaskViewModel(private val dao: TaskDao) : ViewModel() {
 
     // Función para alternar el estado de completado de una tarea
     fun toggleTaskCompletion(task: Task) {
+        val updatedTask = task.copy(isCompleted = !task.isCompleted)
         viewModelScope.launch {
-            val updatedTask = task.copy(isCompleted = !task.isCompleted)
-            dao.updateTask(updatedTask)
-            _tasks.value = dao.getAllTasks() // Recargamos la lista
+            dao.updateTask(updatedTask)  // Actualizar la tarea en la base de datos
+            _tasks.value = dao.getAllTasks()  // Volver a cargar todas las tareas para reflejar los cambios
         }
     }
+
 
     // Función para eliminar todas las tareas
     fun deleteAllTasks() {
@@ -44,4 +45,40 @@ class TaskViewModel(private val dao: TaskDao) : ViewModel() {
             _tasks.value = emptyList() // Vaciamos la lista en el estado
         }
     }
+    //Eliminar las tareas uno por uno
+    fun deleteTask(task: Task) {
+        viewModelScope.launch {
+            dao.deleteTask(task)
+            _tasks.value = dao.getAllTasks() // Actualizamos la lista
+        }
+    }
+    //Actualizar la tarea
+    fun editTask(task: Task, newDescription: String) {
+        val updatedTask = task.copy(description = newDescription)
+        viewModelScope.launch {
+            dao.updateTask(updatedTask)
+            _tasks.value = dao.getAllTasks() // Recargamos la lista
+        }
+    }
+    //Filtrar tareas
+    fun getFilteredTasks(showCompleted: Boolean): List<Task> {
+        return if (showCompleted) {
+            _tasks.value.filter { it.isCompleted }
+        } else {
+            _tasks.value.filter { !it.isCompleted }
+        }
+    }
+    //Buscar tareas
+    fun searchTasks(query: String): List<Task> {
+        return _tasks.value.filter { it.description.contains(query, ignoreCase = true) }
+    }
+    //Ordenar tareas
+    fun getSortedTasks(byName: Boolean, byCompletion: Boolean): List<Task> {
+        return when {
+            byName -> _tasks.value.sortedBy { it.description }
+            byCompletion -> _tasks.value.sortedBy { it.isCompleted }
+            else -> _tasks.value
+        }
+    }
+
 }

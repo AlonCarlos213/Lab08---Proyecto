@@ -67,7 +67,11 @@ dependencies {
 
     // Dependencia de ViewModel para Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$room_version")
+    // Dependencias de WorkManager para tareas en segundo plano
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
 
+    // Para notificaciones
+    implementation("androidx.core:core-ktx:1.7.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
